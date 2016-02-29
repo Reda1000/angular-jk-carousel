@@ -1,0 +1,35 @@
+<div class="jk-carousel" >
+
+  <div class="slides-container" layout="row" >
+    <div
+      ng-repeat="item in ctrl.cloneData"
+      class="slide"
+    >
+      <div ng-include="ctrl.itemTemplateUrl" ></div>
+    </div>
+  </div>
+  <div class="left-arrow-container" layout="column" layout-align="center center" >
+    <md-button class="md-icon-button" >
+      <md-icon ng-click="ctrl.navigateLeft()" >chevron_left</md-icon>
+    </md-button>
+  </div>
+  <div class="right-arrow-container" layout="column" layout-align="center center" >
+    <md-button class="md-icon-button" >
+      <md-icon ng-click="ctrl.navigateRight()" >chevron_right</md-icon>
+    </md-button>
+  </div>
+
+  <md-radio-group
+    class="radio-buttons-container"
+    layout="row"
+    ng-model="ctrl.radioButtonIndex"
+    layout-align="center center"
+    ng-change="ctrl.onRadioButtonClick()" >
+    <md-radio-button
+      ng-repeat="item in ctrl.data"
+      ng-value="$index"
+      aria-label="$index" >
+    </md-radio-button>
+  </md-radio-group>
+
+</div>
