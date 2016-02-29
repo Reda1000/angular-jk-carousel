@@ -7,9 +7,13 @@
 		"url": "git://github.com/juank11memphis/angular-jk-carousel.git"
 	},
   "scripts": {
-    "build": "gulp build",
-    "watch": "gulp watch"
+    "prepublish": "gulp build",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bugs": {
+    "url": "https://github.com/juank11memphis/angular-jk-carousel/issues"
+  },
+  "homepage": "https://github.com/juank11memphis/angular-jk-carousel#readme",
 	"author": "Juan Carlos Morales Mora <juank.memphis@gmail.com>",
   "license": "MIT",
   "devDependencies": {
