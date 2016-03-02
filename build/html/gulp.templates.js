@@ -5,7 +5,7 @@
     templateCache = require('gulp-angular-templatecache'),
     size = require('gulp-size'),
     templateCacheOptions = {
-      module: 'jkCarousel.templates',
+      module: 'jkAngularCarousel.templates',
       moduleSystem: 'IIFE',
       standalone: true,
       root: ''

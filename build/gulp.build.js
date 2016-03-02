@@ -17,7 +17,9 @@
       'pre-build-tasks',
       'assets', //compile sass files.
       'templates', //Concatenates all html directives into a single js file and save them in the angular cache
-      'systemjs-build', //Compiles typescript files and concatenate them in a single file (app.js)
+      'js', //Compiles typescript files and concatenate them in a single file (app.js)
+      'concat-dev',
+      'concat-prod',
       'post-build-taks',
       done
     );

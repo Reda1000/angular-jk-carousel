@@ -1,6 +1,6 @@
 {
   "name": "angular-jk-carousel",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Amazing carousel for angular material",
 	"repository": {
 		"type": "git",
@@ -27,15 +27,14 @@
     "del": "2.2.0",
     "gulp-cache": "0.4.1",
     "gulp-angular-templatecache": "1.8.0",
-    "gulp-tslint": "4.2.1",
-    "gulp-tslint-stylish": "1.1.1",
-    "gulp-typescript": "2.10.0",
-    "tslint": "3.2.1",
     "gulp-csso": "1.0.1",
     "systemjs-builder": "0.14.15",
     "gulp-uglify": "1.5.1",
     "uglify-save-license": "0.4.1",
     "gulp-util": "3.0.7",
-    "gulp-rename": "1.2.2"
+    "gulp-rename": "1.2.2",
+    "gulp-jshint": "1.10.0",
+    "jshint-stylish": "2.1.0",
+    "gulp-util": "3.0.7"
   }
 }

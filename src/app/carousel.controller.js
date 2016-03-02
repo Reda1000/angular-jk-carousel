@@ -1,14 +1,6 @@
 (function() {
   'use strict';
 
-  angular.module('jkAngularCarousel', [
-    'jkAngularCarousel.templates'
-  ]);
-}());
-
-(function() {
-  'use strict';
-
   function CarouselController($timeout, $attrs) {
 
     var that = this;
@@ -157,38 +149,3 @@
     ]);
 
 }());
-
-(function() {
-
-  'use strict';
-
-  function CarouselDirective() {
-
-    function link(scope, element, attrs, ctrl) {
-      ctrl.registerElement(element);
-    }
-
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: 'carousel-directive.html',
-      scope: {},
-      controller: 'CarouselController',
-      controllerAs: 'ctrl',
-      bindToController: {
-        data: '=',
-        itemTemplateUrl: '='
-      },
-      link: link
-    };
-  }
-
-  angular
-    .module('jkAngularCarousel')
-    .directive('jkCarousel', [
-    CarouselDirective
-  ]);
-
-} ());
-
-(function(){angular.module("jkAngularCarousel.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("carousel-directive.html","<div class=\"jk-carousel\" >\n\n  <div class=\"slides-container\" layout=\"row\" >\n    <div\n      ng-repeat=\"item in ctrl.cloneData\"\n      class=\"slide\"\n    >\n      <div ng-include=\"ctrl.itemTemplateUrl\" ></div>\n    </div>\n  </div>\n  <div class=\"left-arrow-container\" layout=\"column\" layout-align=\"center center\" >\n    <md-button class=\"md-icon-button\" >\n      <md-icon ng-click=\"ctrl.navigateLeft()\" >chevron_left</md-icon>\n    </md-button>\n  </div>\n  <div class=\"right-arrow-container\" layout=\"column\" layout-align=\"center center\" >\n    <md-button class=\"md-icon-button\" >\n      <md-icon ng-click=\"ctrl.navigateRight()\" >chevron_right</md-icon>\n    </md-button>\n  </div>\n\n  <md-radio-group\n    class=\"radio-buttons-container\"\n    layout=\"row\"\n    ng-model=\"ctrl.radioButtonIndex\"\n    layout-align=\"center center\"\n    ng-change=\"ctrl.onRadioButtonClick()\" >\n    <md-radio-button\n      ng-repeat=\"item in ctrl.data\"\n      ng-value=\"$index\"\n      aria-label=\"$index\" >\n    </md-radio-button>\n  </md-radio-group>\n\n</div>\n");}]);})();
