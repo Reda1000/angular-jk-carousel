@@ -45,12 +45,17 @@ vm.arrayData = [
  - A very simple example of an item template looks like this:
 ```html
 <div>
-  <img ng-src="{{item.src}}" style="height: 400px" >
+  <img ng-src="{{slideItem.src}}" style="height: 400px" >
 </div>
 ```
+ - It is possible to set the component to auto slide, if the auto slide time is not set, we use the default of 5 seconds:
+ ```html
+ <jk-carousel data="ctrl.arrayData" item-template-url="'item-template.html'" auto-slide="true" auto-slide-time="1000" >
+ </jk-carousel>
+ ```
+
 
 ## TODO :
- - Autoslide feature
  - Add more transition types
  - Make the component responsive
 

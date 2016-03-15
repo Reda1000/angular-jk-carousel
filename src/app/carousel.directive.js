@@ -6,6 +6,9 @@
 
     function link(scope, element, attrs, ctrl) {
       ctrl.registerElement(element);
+      scope.$on('$destroy', function() {
+        ctrl.stopAutoSlide();
+      });
     }
 
     return {
@@ -17,7 +20,9 @@
       controllerAs: 'ctrl',
       bindToController: {
         data: '=',
-        itemTemplateUrl: '='
+        itemTemplateUrl: '=',
+        autoSlide: '@?',
+        autoSlideTime: '@?'
       },
       link: link
     };
@@ -29,4 +34,4 @@
     CarouselDirective
   ]);
 
-} ());
+}());

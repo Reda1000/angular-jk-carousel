@@ -1,22 +1,59 @@
 (function() {
   'use strict';
 
-  function CarouselController($timeout, $attrs) {
+  function CarouselController($timeout, $attrs, $interval) {
 
     var that = this;
     that.currentIndex = 0;
     that.currentMarginLeftValue = 0;
     that.radioButtonIndex = 0;
-    $attrs.$observe('data', function() {
-      that.onDataChange();
-    });
+    that.transitionsTime = 500;
+    that.transitionsEnabled = true;
+
+    if (that.autoSlide === undefined) {
+      that.autoSlide = false;
+    }
+
+    if (that.autoSlideTime === undefined) {
+      that.autoSlideTime = 5000;
+    }
 
     that.registerElement = function(element) {
       that.element = element;
       that.slidesContainer = angular.element(that.element.find('div')[0]);
     };
 
-    that.resetSlidesContainerToDefaultPosition = function() {
+    $attrs.$observe('data', function() {
+      that.onDataChange();
+    });
+
+    $attrs.$observe('autoSlide', function() {
+      that.autoSlide = that.autoSlide === 'true';
+      that.validateAutoSlide();
+    });
+
+    $attrs.$observe('autoSlideTime', function() {
+      that.autoSlideTime = parseInt(that.autoSlideTime);
+      that.restartAutoSlide();
+    });
+
+    that.onDataChange = function() {
+      if (that.isDataInvalidOrTooSmall()) {
+        return;
+      }
+      that.executeCloneData();
+      $timeout(function() {
+        that.updateSlidesContainerWidth();
+        that.restartFromFirstItem();
+      });
+    };
+
+    that.updateSlidesContainerWidth = function() {
+      that.elementWidth = that.element.prop('offsetWidth');
+      that.slidesContainer.css('width', (that.elementWidth * that.cloneData.length) + 'px');
+    };
+
+    that.restartFromFirstItem = function() {
       if (!that.elementWidth) {
         return;
       }
@@ -26,17 +63,6 @@
       that.currentIndex = 0;
       that.radioButtonIndex = that.currentIndex;
       that.enableTransitions();
-    };
-
-    that.onDataChange = function() {
-      if (that.isDataInvalidOrTooSmall()) {
-        return;
-      }
-      that.executeCloneData();
-      $timeout(function() {
-        that.updateSlidesContainerWidth();
-        that.resetSlidesContainerToDefaultPosition();
-      });
     };
 
     that.executeCloneData = function() {
@@ -62,9 +88,47 @@
       cloneArray.unshift(lastItemClone);
     };
 
-    that.updateSlidesContainerWidth = function() {
-      that.elementWidth = that.element.prop('offsetWidth');
-      that.slidesContainer.css('width', (that.elementWidth * that.cloneData.length) + 'px');
+    that.validateAutoSlide = function() {
+      if (!that.autoSlide) {
+        that.stopAutoSlide();
+      } else {
+        that.startAutoSlide();
+      }
+    };
+
+    that.restartAutoSlide = function() {
+      if (!that.autoSlide) {
+        return;
+      }
+      if (that.transitionsEnabled) {
+        $timeout(function() {
+          that.stopAutoSlide();
+          that.startAutoSlide();
+        }, that.transitionsTime);
+      } else {
+        that.stopAutoSlide();
+        that.startAutoSlide();
+      }
+    };
+
+    that.startAutoSlide = function() {
+      if (!angular.isDefined(that.autoSlideInterval)) {
+        that.autoSlideInterval = $interval(function() {
+          that.navigateRight();
+        }, that.autoSlideTime);
+      }
+    };
+
+    that.stopAutoSlide = function() {
+      if (angular.isDefined(that.autoSlideInterval)) {
+        $interval.cancel(that.autoSlideInterval);
+        that.autoSlideInterval = undefined;
+      }
+    };
+
+    that.onNavigateLeft = function() {
+      that.navigateLeft();
+      that.restartAutoSlide();
     };
 
     that.navigateLeft = function() {
@@ -75,6 +139,7 @@
       that.radioButtonIndex = that.currentIndex;
       that.currentMarginLeftValue += that.elementWidth;
       that.applyMarginLeft();
+      that.restartAutoSlide();
       if (that.currentIndex === -1) {
         that.restartFromLastItem();
       }
@@ -88,7 +153,12 @@
         that.currentIndex = that.data.length - 1;
         that.radioButtonIndex = that.currentIndex;
         that.enableTransitions();
-      }, 500);
+      }, that.transitionsTime);
+    };
+
+    that.onNavigateRight = function() {
+      that.navigateRight();
+      that.restartAutoSlide();
     };
 
     that.navigateRight = function() {
@@ -99,10 +169,11 @@
       that.radioButtonIndex = that.currentIndex;
       that.currentMarginLeftValue -= that.elementWidth;
       that.applyMarginLeft();
+      that.restartAutoSlide();
       if (that.currentIndex === that.data.length) {
         $timeout(function() {
-          that.resetSlidesContainerToDefaultPosition();
-        }, 500);
+          that.restartFromFirstItem();
+        }, that.transitionsTime);
       }
     };
 
@@ -112,11 +183,13 @@
 
     that.disableTransitions = function() {
       that.slidesContainer.css('transition', 'none');
+      that.transitionsEnabled = false;
     };
 
     that.enableTransitions = function() {
       $timeout(function() {
         that.slidesContainer.css('transition', 'margin 0.5s ease-in-out');
+        that.transitionsEnabled = true;
       }, 200);
     };
 
@@ -131,6 +204,7 @@
       }
       that.currentIndex = that.radioButtonIndex;
       that.applyMarginLeft();
+      that.restartAutoSlide();
     };
 
     that.isDataInvalidOrTooSmall = function() {
@@ -144,7 +218,7 @@
   angular
     .module('jkAngularCarousel')
     .controller('CarouselController', [
-      '$timeout', '$attrs',
+      '$timeout', '$attrs', '$interval',
       CarouselController
     ]);
 
