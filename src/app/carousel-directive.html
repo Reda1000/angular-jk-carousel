@@ -8,16 +8,14 @@
       <div ng-include="ctrl.itemTemplateUrl" ></div>
     </div>
   </div>
-  <div class="left-arrow-container" layout="column" layout-align="center center" >
-    <md-button class="md-icon-button" >
-      <md-icon ng-click="ctrl.navigateLeft()" >chevron_left</md-icon>
-    </md-button>
-  </div>
-  <div class="right-arrow-container" layout="column" layout-align="center center" >
-    <md-button class="md-icon-button" >
-      <md-icon ng-click="ctrl.navigateRight()" >chevron_right</md-icon>
-    </md-button>
-  </div>
+
+  <md-button class="md-icon-button left-arrow-button" >
+    <md-icon ng-click="ctrl.navigateLeft()" >chevron_left</md-icon>
+  </md-button>
+
+  <md-button class="md-icon-button right-arrow-button" >
+    <md-icon ng-click="ctrl.navigateRight()" >chevron_right</md-icon>
+  </md-button>
 
   <md-radio-group
     class="radio-buttons-container"

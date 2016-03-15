@@ -14,15 +14,15 @@
     }
   }
 
-  .left-arrow-container,
-  .right-arrow-container {
-    width: 60px;
-    height: 100%;
-    background-color: transparent;
+  .left-arrow-button,
+  .right-arrow-button {
     position: absolute;
+    margin: auto !important;
+    top: 0;
+    bottom: 0;
   }
 
-  .right-arrow-container {
+  .right-arrow-button {
     right: 0;
   }
 
