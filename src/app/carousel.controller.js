@@ -10,14 +10,6 @@
     that.transitionsTime = 500;
     that.transitionsEnabled = true;
 
-    if (that.autoSlide === undefined) {
-      that.autoSlide = false;
-    }
-
-    if (that.autoSlideTime === undefined) {
-      that.autoSlideTime = 5000;
-    }
-
     that.registerElement = function(element) {
       that.element = element;
       that.slidesContainer = angular.element(that.element.find('div')[0]);
@@ -25,16 +17,6 @@
 
     $attrs.$observe('data', function() {
       that.onDataChange();
-    });
-
-    $attrs.$observe('autoSlide', function() {
-      that.autoSlide = that.autoSlide === 'true';
-      that.validateAutoSlide();
-    });
-
-    $attrs.$observe('autoSlideTime', function() {
-      that.autoSlideTime = parseInt(that.autoSlideTime);
-      that.restartAutoSlide();
     });
 
     that.onDataChange = function() {
@@ -208,7 +190,7 @@
     };
 
     that.isDataInvalidOrTooSmall = function() {
-      if (!that.data || that.data.length === 0 || that.data.length === 1) {
+      if (!that.data || that.data.length === 0) {
         return true;
       }
       return false;

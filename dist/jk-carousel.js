@@ -18,14 +18,6 @@
     that.transitionsTime = 500;
     that.transitionsEnabled = true;
 
-    if (that.autoSlide === undefined) {
-      that.autoSlide = false;
-    }
-
-    if (that.autoSlideTime === undefined) {
-      that.autoSlideTime = 5000;
-    }
-
     that.registerElement = function(element) {
       that.element = element;
       that.slidesContainer = angular.element(that.element.find('div')[0]);
@@ -33,16 +25,6 @@
 
     $attrs.$observe('data', function() {
       that.onDataChange();
-    });
-
-    $attrs.$observe('autoSlide', function() {
-      that.autoSlide = that.autoSlide === 'true';
-      that.validateAutoSlide();
-    });
-
-    $attrs.$observe('autoSlideTime', function() {
-      that.autoSlideTime = parseInt(that.autoSlideTime);
-      that.restartAutoSlide();
     });
 
     that.onDataChange = function() {
@@ -108,7 +90,6 @@
       if (!that.autoSlide) {
         return;
       }
-      console.log('Restarting auto slide...');
       if (that.transitionsEnabled) {
         $timeout(function() {
           that.stopAutoSlide();
@@ -122,9 +103,7 @@
 
     that.startAutoSlide = function() {
       if (!angular.isDefined(that.autoSlideInterval)) {
-        console.log('Interval created...');
         that.autoSlideInterval = $interval(function() {
-          console.log('Interval called...');
           that.navigateRight();
         }, that.autoSlideTime);
       }
@@ -134,7 +113,6 @@
       if (angular.isDefined(that.autoSlideInterval)) {
         $interval.cancel(that.autoSlideInterval);
         that.autoSlideInterval = undefined;
-        console.log('Interval stopped...');
       }
     };
 
@@ -220,7 +198,7 @@
     };
 
     that.isDataInvalidOrTooSmall = function() {
-      if (!that.data || that.data.length === 0 || that.data.length === 1) {
+      if (!that.data || that.data.length === 0) {
         return true;
       }
       return false;
@@ -243,9 +221,21 @@
   function CarouselDirective() {
 
     function link(scope, element, attrs, ctrl) {
+      if (attrs.autoSlide === undefined) {
+        ctrl.autoSlide = false;
+      }
+      if (attrs.autoSlideTime === undefined) {
+        ctrl.autoSlideTime = 5000;
+      }
       ctrl.registerElement(element);
       scope.$on('$destroy', function() {
         ctrl.stopAutoSlide();
+      });
+      scope.$watch('ctrl.autoSlide', function() {
+        ctrl.validateAutoSlide();
+      });
+      scope.$watch('ctrl.autoSlideTime', function() {
+        ctrl.restartAutoSlide();
       });
     }
 
