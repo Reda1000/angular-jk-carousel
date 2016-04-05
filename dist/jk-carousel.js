@@ -9,7 +9,7 @@
 (function() {
   'use strict';
 
-  function CarouselController($timeout, $attrs, $interval) {
+  function CarouselController($timeout, $attrs, $interval, $window) {
 
     var that = this;
     that.currentIndex = 0;
@@ -18,32 +18,18 @@
     that.transitionsTime = 500;
     that.transitionsEnabled = true;
 
-    if (that.autoSlide === undefined) {
-      that.autoSlide = false;
-    }
-
-    if (that.autoSlideTime === undefined) {
-      that.autoSlideTime = 5000;
-    }
-
-    that.registerElement = function(element) {
-      that.element = element;
-      that.slidesContainer = angular.element(that.element.find('div')[0]);
-    };
-
     $attrs.$observe('data', function() {
       that.onDataChange();
     });
 
-    $attrs.$observe('autoSlide', function() {
-      that.autoSlide = that.autoSlide === 'true';
-      that.validateAutoSlide();
-    });
-
-    $attrs.$observe('autoSlideTime', function() {
-      that.autoSlideTime = parseInt(that.autoSlideTime);
-      that.restartAutoSlide();
-    });
+    that.registerElement = function(element) {
+      that.element = element;
+      that.elementParent = that.element.parent();
+      that.slidesContainer = angular.element(that.element.find('div')[0]);
+      $window.addEventListener('resize', function() {
+        that.updateSlidesContainerWidth();
+      });
+    };
 
     that.onDataChange = function() {
       if (that.isDataInvalidOrTooSmall()) {
@@ -57,16 +43,65 @@
     };
 
     that.updateSlidesContainerWidth = function() {
-      that.elementWidth = that.element.prop('offsetWidth');
-      that.slidesContainer.css('width', (that.elementWidth * that.cloneData.length) + 'px');
+      that.scaleContent();
+      that.currentWidth = that.element.prop('offsetWidth');
+      that.currentHeight = that.element.prop('offsetHeight');
+      that.resizeSlides();
+      var newSlidesContainerWidth = that.currentWidth * that.cloneData.length;
+      that.slidesContainer.css('width', newSlidesContainerWidth + 'px');
+      that.scaleMarginLeft(newSlidesContainerWidth);
+      that.currentSlidesContainerWidth = newSlidesContainerWidth;
+    };
+
+    that.scaleContent = function() {
+      that.maxWidth = that.maxWidth ? parseInt(that.maxWidth): 0;
+      if( that.maxWidth === 0 ){
+        that.maxWidth = that.element.prop('offsetWidth');
+      }
+      that.maxHeight = that.maxHeight ? parseInt(that.maxHeight): 0;
+      if( that.maxHeight === 0 ){
+        that.maxHeight = that.element.prop('offsetHeight');
+      }
+      var currentElementParentWidth = that.elementParent.prop('offsetWidth');
+      if( currentElementParentWidth < that.maxWidth ){
+        console.log(currentElementParentWidth, that.maxWidth);
+        var newHeight = (that.maxHeight * currentElementParentWidth) / that.maxWidth;
+        that.element.css('width', currentElementParentWidth + 'px');
+        that.element.css('height', newHeight + 'px');
+      }else if( currentElementParentWidth >= that.maxWidth ){
+        that.element.css('width', that.maxWidth + 'px');
+        that.element.css('height', that.maxHeight + 'px');
+      }
+    };
+
+    that.resizeSlides = function(){
+      var slides = $window.document.getElementsByClassName('slide');
+      for( var index=0; index < slides.length; index++ ){
+        var slide = angular.element(slides[index]);
+        slide.css('width', that.currentWidth + 'px');
+        slide.css('height', that.currentHeight + 'px');
+      }
+    };
+
+    that.scaleMarginLeft = function(newSlidesContainerWidth){
+      if(
+        that.currentSlidesContainerWidth &&
+        that.currentSlidesContainerWidth !== newSlidesContainerWidth
+      ){
+        that.currentMarginLeftValue = that.currentMarginLeftValue * newSlidesContainerWidth;
+        that.currentMarginLeftValue = that.currentMarginLeftValue / that.currentSlidesContainerWidth;
+        that.disableTransitions();
+        that.applyMarginLeft();
+        that.enableTransitions();
+      }
     };
 
     that.restartFromFirstItem = function() {
-      if (!that.elementWidth) {
+      if (!that.currentWidth) {
         return;
       }
       that.disableTransitions();
-      that.currentMarginLeftValue = that.elementWidth * -1;
+      that.currentMarginLeftValue = that.currentWidth * -1;
       that.applyMarginLeft();
       that.currentIndex = 0;
       that.radioButtonIndex = that.currentIndex;
@@ -108,7 +143,6 @@
       if (!that.autoSlide) {
         return;
       }
-      console.log('Restarting auto slide...');
       if (that.transitionsEnabled) {
         $timeout(function() {
           that.stopAutoSlide();
@@ -122,9 +156,7 @@
 
     that.startAutoSlide = function() {
       if (!angular.isDefined(that.autoSlideInterval)) {
-        console.log('Interval created...');
         that.autoSlideInterval = $interval(function() {
-          console.log('Interval called...');
           that.navigateRight();
         }, that.autoSlideTime);
       }
@@ -134,7 +166,6 @@
       if (angular.isDefined(that.autoSlideInterval)) {
         $interval.cancel(that.autoSlideInterval);
         that.autoSlideInterval = undefined;
-        console.log('Interval stopped...');
       }
     };
 
@@ -149,7 +180,7 @@
       }
       that.currentIndex--;
       that.radioButtonIndex = that.currentIndex;
-      that.currentMarginLeftValue += that.elementWidth;
+      that.currentMarginLeftValue += that.currentWidth;
       that.applyMarginLeft();
       that.restartAutoSlide();
       if (that.currentIndex === -1) {
@@ -160,7 +191,7 @@
     that.restartFromLastItem = function() {
       $timeout(function() {
         that.disableTransitions();
-        that.currentMarginLeftValue = (that.elementWidth * that.data.length) * -1;
+        that.currentMarginLeftValue = (that.currentWidth * that.data.length) * -1;
         that.applyMarginLeft();
         that.currentIndex = that.data.length - 1;
         that.radioButtonIndex = that.currentIndex;
@@ -179,7 +210,7 @@
       }
       that.currentIndex++;
       that.radioButtonIndex = that.currentIndex;
-      that.currentMarginLeftValue -= that.elementWidth;
+      that.currentMarginLeftValue -= that.currentWidth;
       that.applyMarginLeft();
       that.restartAutoSlide();
       if (that.currentIndex === that.data.length) {
@@ -209,10 +240,10 @@
       var multiplier;
       if (that.radioButtonIndex > that.currentIndex) {
         multiplier = that.radioButtonIndex - that.currentIndex;
-        that.currentMarginLeftValue -= (that.elementWidth * multiplier);
+        that.currentMarginLeftValue -= (that.currentWidth * multiplier);
       } else {
         multiplier = that.currentIndex - that.radioButtonIndex;
-        that.currentMarginLeftValue += (that.elementWidth * multiplier);
+        that.currentMarginLeftValue += (that.currentWidth * multiplier);
       }
       that.currentIndex = that.radioButtonIndex;
       that.applyMarginLeft();
@@ -220,7 +251,7 @@
     };
 
     that.isDataInvalidOrTooSmall = function() {
-      if (!that.data || that.data.length === 0 || that.data.length === 1) {
+      if (!that.data || that.data.length === 0) {
         return true;
       }
       return false;
@@ -229,8 +260,8 @@
 
   angular
     .module('jkAngularCarousel')
-    .controller('CarouselController', [
-      '$timeout', '$attrs', '$interval',
+    .controller('JKCarouselController', [
+      '$timeout', '$attrs', '$interval', '$window',
       CarouselController
     ]);
 
@@ -243,9 +274,21 @@
   function CarouselDirective() {
 
     function link(scope, element, attrs, ctrl) {
+      if (attrs.autoSlide === undefined) {
+        ctrl.autoSlide = false;
+      }
+      if (attrs.autoSlideTime === undefined) {
+        ctrl.autoSlideTime = 5000;
+      }
       ctrl.registerElement(element);
       scope.$on('$destroy', function() {
         ctrl.stopAutoSlide();
+      });
+      scope.$watch('ctrl.autoSlide', function() {
+        ctrl.validateAutoSlide();
+      });
+      scope.$watch('ctrl.autoSlideTime', function() {
+        ctrl.restartAutoSlide();
       });
     }
 
@@ -254,11 +297,13 @@
       replace: true,
       templateUrl: 'carousel-directive.html',
       scope: {},
-      controller: 'CarouselController',
+      controller: 'JKCarouselController',
       controllerAs: 'ctrl',
       bindToController: {
         data: '=',
         itemTemplateUrl: '=',
+        maxWidth: '@?',
+        maxHeight: '@?',
         autoSlide: '@?',
         autoSlideTime: '@?'
       },
