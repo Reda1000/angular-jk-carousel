@@ -28,11 +28,13 @@
       replace: true,
       templateUrl: 'carousel-directive.html',
       scope: {},
-      controller: 'CarouselController',
+      controller: 'JKCarouselController',
       controllerAs: 'ctrl',
       bindToController: {
         data: '=',
         itemTemplateUrl: '=',
+        maxWidth: '@?',
+        maxHeight: '@?',
         autoSlide: '@?',
         autoSlideTime: '@?'
       },
